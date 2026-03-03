@@ -1,0 +1,17 @@
+<h2>Chat con ia</h2>
+
+<form method="POST">
+    {% csrf_token %}
+    <input type = "text" name = "mensaje" placeholder="">
+    <button type="submit">Enviar</button>
+</form>
+
+<hr>
+
+{% for mensaje in mensajes %}
+    {% if mensaje.role  == "user" %}
+        <p><strong>TU</strong>{{ mensaje.contenido}}</p>
+    {% else %}
+        <p><strong>ia</strong>{{ mensaje.contenido}}</p>  
+    {% endif %}
+{% endfor %}  

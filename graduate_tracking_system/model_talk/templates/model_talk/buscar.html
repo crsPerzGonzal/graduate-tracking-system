@@ -1,0 +1,17 @@
+<h2>Busacar conversacion</h2>
+
+<form method="GET">
+    <input type="text" name="q" placeholder="...." value="{{query}}">
+    <button type="submit">Buscar</button>
+</form>
+
+<hr>
+{% for sesion in sesiones %}
+    <p>
+        <a href="{% url 'chat_con_id' sesion.id_sesion %}">
+            Conversacion {{sesion.id_sesion}} - {{sesion.fecha_inicio}}
+        </a>
+    </p>
+{% empty %}
+    <p>No se encontraron conversaciones.</p>
+{% endfor %}
