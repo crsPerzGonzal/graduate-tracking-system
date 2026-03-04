@@ -1,17 +1,113 @@
-<h2>Chat con ia</h2>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat con IA</title>
 
-<form method="POST">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        h2 {
+            text-align: center;
+            padding: 10px;
+            background: #1e293b;
+            color: white;
+            margin: 0;
+        }
+
+        .chat-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            max-width: 60%;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 15px;
+        }
+
+        .user {
+            align-self: flex-end;
+            background-color: #3b82f6;
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .ia {
+            align-self: flex-start;
+            background-color: #e2e8f0;
+            color: black;
+            border-bottom-left-radius: 5px;
+        }
+
+        .input-container {
+            display: flex;
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #ddd;
+        }
+
+        .input-container input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+            outline: none;
+        }
+
+        .input-container button {
+            margin-left: 10px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            background-color: #3b82f6;
+            color: white;
+            cursor: pointer;
+        }
+
+        .input-container button:hover {
+            background-color: #2563eb;
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>Chat con IA</h2>
+
+<div class="chat-container">
+    {% for mensaje in mensajes %}
+        {% if mensaje.role == "user" %}
+            <div class="message user">
+                {{ mensaje.contenido }}
+            </div>
+        {% else %}
+            <div class="message ia">
+                {{ mensaje.contenido }}
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>
+
+<form method="POST" class="input-container">
     {% csrf_token %}
-    <input type = "text" name = "mensaje" placeholder="">
+    <input type="text" name="mensaje" placeholder="Escribe tu mensaje..." required>
     <button type="submit">Enviar</button>
 </form>
 
-<hr>
-
-{% for mensaje in mensajes %}
-    {% if mensaje.role  == "user" %}
-        <p><strong>TU</strong>{{ mensaje.contenido}}</p>
-    {% else %}
-        <p><strong>ia</strong>{{ mensaje.contenido}}</p>  
-    {% endif %}
-{% endfor %}  
+</body>
+<script>
+    const chatContainer = document.querySelector(".chat-container");
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+</script>
+</html>

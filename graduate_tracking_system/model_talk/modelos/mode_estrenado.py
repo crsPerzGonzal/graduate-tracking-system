@@ -2,8 +2,8 @@ import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from model_talk.models import Chat_session, Chat_sessions
 
-tokenizer = AutoTokenizer.from_pretrained("C:\\Users\\pc798\\OneDrive\\Escritorio\\IA learn\\list_project\\modelo_IA\\model_enfermeria_final")
-model = AutoModelForCausalLM.from_pretrained("C:\\Users\\pc798\\OneDrive\\Escritorio\\IA learn\\list_project\\modelo_IA\\model_enfermeria_final")
+tokenizer = AutoTokenizer.from_pretrained("C:\\Users\\pc798\\OneDrive\\Escritorio\\IA learn\\list_project\\modelo_IA\\modelo_academico_final")
+model = AutoModelForCausalLM.from_pretrained("C:\\Users\\pc798\\OneDrive\\Escritorio\\IA learn\\list_project\\modelo_IA\\modelo_academico_final")
 
 def generar_respuesta_con_Contexto(sesion):
     mensajes = Chat_session.objects.filter(id_sesion=sesion)
@@ -16,9 +16,7 @@ def generar_respuesta_con_Contexto(sesion):
         else:
             historial += f"Asistente: {m.contenido}\n"
 
-    prompt = f"""
-Eres un asistente experto en enfermería universitaria.
-Respondes de forma clara, técnica y pedagógica.
+    prompt = f"""Eres un asistente académico experto en ayudar a los estudiantes a resolver sus dudas y problemas relacionados con sus estudios. Tu objetivo es proporcionar respuestas claras, concisas y útiles para ayudar a los estudiantes a comprender mejor los temas académicos y superar cualquier dificultad que puedan tener.
 
 {historial}
 Asistente:
