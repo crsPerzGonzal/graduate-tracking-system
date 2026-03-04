@@ -1,16 +1,29 @@
+import os
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
-from model_talk.models import Chat_session, Chat_sessions
+from model_talk.models import Chat_session
 
-MODEL_ID = "criskiller/modelo_academico_final"
-tokenizer = AutoTokenizer.from_pretrained(MODEL_ID)
-model = AutoModelForCausalLM.from_pretrained(MODEL_ID)
+MODEL_ID = os.environ.get("HF_MODEL_ID", "criskiller/modelo_academico_final")
+
+_tokenizer = None
+_model = None
+_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+def get_model():
+    global _tokenizer, _model
+    if _tokenizer is None or _model is None:
+        _tokenizer = AutoTokenizer.from_pretrained(MODEL_ID)
+        _model = AutoModelForCausalLM.from_pretrained(MODEL_ID)
+        _model.to(_device)
+        _model.eval()
+    return _tokenizer, _model
 
 def generar_respuesta_con_Contexto(sesion):
+    tokenizer, model = get_model()
+
     mensajes = Chat_session.objects.filter(id_sesion=sesion)
 
     historial = ""
-
     for m in mensajes:
         if m.role == "user":
             historial += f"Usuario: {m.contenido}\n"
@@ -26,6 +39,7 @@ Asistente:
 """
 
     inputs = tokenizer(prompt, return_tensors="pt")
+    inputs = {k: v.to(_device) for k, v in inputs.items()}
 
     with torch.no_grad():
         outputs = model.generate(
