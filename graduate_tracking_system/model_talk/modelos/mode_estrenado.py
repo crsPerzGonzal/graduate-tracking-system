@@ -2,8 +2,9 @@ import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from model_talk.models import Chat_session, Chat_sessions
 
-tokenizer = AutoTokenizer.from_pretrained("C:\\Users\\pc798\\OneDrive\\Escritorio\\IA learn\\list_project\\modelo_IA\\model_enfermeria_final")
-model = AutoModelForCausalLM.from_pretrained("C:\\Users\\pc798\\OneDrive\\Escritorio\\IA learn\\list_project\\modelo_IA\\model_enfermeria_final")
+MODEL_ID = "criskiller/modelo_academico_final"
+tokenizer = AutoTokenizer.from_pretrained(MODEL_ID)
+model = AutoModelForCausalLM.from_pretrained(MODEL_ID)
 
 def generar_respuesta_con_Contexto(sesion):
     mensajes = Chat_session.objects.filter(id_sesion=sesion)
