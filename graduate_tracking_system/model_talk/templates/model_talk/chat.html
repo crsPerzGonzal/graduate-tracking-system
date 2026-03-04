@@ -1,113 +1,361 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat con IA</title>
 
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f4f6f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
             display: flex;
             flex-direction: column;
             height: 100vh;
+            color: #e2e8f0;
+            overflow: hidden;
         }
 
-        h2 {
-            text-align: center;
-            padding: 10px;
-            background: #1e293b;
-            color: white;
-            margin: 0;
+        /* ─── Top bar ─── */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 24px;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(99, 102, 241, 0.15);
+            z-index: 10;
+            animation: slideDown 0.5s ease-out;
+        }
+        .top-bar .title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #818cf8, #38bdf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .top-bar .session-badge {
+            font-size: 0.78rem;
+            color: #64748b;
+            background: rgba(99, 102, 241, 0.1);
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+        .top-bar nav {
+            display: flex;
+            gap: 10px;
+        }
+        .top-bar nav a {
+            padding: 7px 16px;
+            border-radius: 10px;
+            background: rgba(99, 102, 241, 0.12);
+            color: #a5b4fc;
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 500;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            transition: all 0.3s;
+        }
+        .top-bar nav a:hover {
+            background: rgba(99, 102, 241, 0.3);
+            color: #c7d2fe;
+            transform: translateY(-1px);
         }
 
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ─── Chat area ─── */
         .chat-container {
             flex: 1;
-            padding: 20px;
+            padding: 28px 20px 12px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
+            gap: 6px;
+            scroll-behavior: smooth;
         }
 
-        .message {
-            max-width: 60%;
-            padding: 10px 15px;
-            margin-bottom: 10px;
-            border-radius: 15px;
+        /* Scrollbar */
+        .chat-container::-webkit-scrollbar { width: 6px; }
+        .chat-container::-webkit-scrollbar-track { background: transparent; }
+        .chat-container::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.3);
+            border-radius: 10px;
         }
 
-        .user {
-            align-self: flex-end;
-            background-color: #3b82f6;
-            color: white;
-            border-bottom-right-radius: 5px;
-        }
-
-        .ia {
-            align-self: flex-start;
-            background-color: #e2e8f0;
-            color: black;
-            border-bottom-left-radius: 5px;
-        }
-
-        .input-container {
+        /* ─── Messages ─── */
+        .message-row {
             display: flex;
-            padding: 15px;
-            background: white;
-            border-top: 1px solid #ddd;
+            gap: 10px;
+            max-width: 72%;
+            animation: msgAppear 0.35s ease-out both;
+        }
+        .message-row.user-row { align-self: flex-end; flex-direction: row-reverse; }
+        .message-row.ia-row   { align-self: flex-start; }
+
+        .avatar {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            flex-shrink: 0;
+            margin-top: 4px;
+        }
+        .user-row .avatar {
+            background: linear-gradient(135deg, #6366f1, #3b82f6);
+        }
+        .ia-row .avatar {
+            background: linear-gradient(135deg, #0ea5e9, #06b6d4);
         }
 
-        .input-container input {
+        .bubble {
+            padding: 12px 18px;
+            border-radius: 18px;
+            font-size: 0.95rem;
+            line-height: 1.55;
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        .user-row .bubble {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: #fff;
+            border-bottom-right-radius: 6px;
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+        }
+
+        .ia-row .bubble {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(99, 102, 241, 0.12);
+            color: #e2e8f0;
+            border-bottom-left-radius: 6px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes msgAppear {
+            from { opacity: 0; transform: translateY(12px) scale(0.97); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* ─── Timestamp on hover ─── */
+        .msg-time {
+            font-size: 0.7rem;
+            color: #475569;
+            margin-top: 4px;
+            text-align: right;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .message-row:hover .msg-time { opacity: 1; }
+
+        /* Empty state */
+        .empty-chat {
             flex: 1;
-            padding: 10px;
-            border-radius: 20px;
-            border: 1px solid #ccc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            animation: fadeIn 0.8s ease-out;
+        }
+        .empty-chat .icon { font-size: 3.5rem; opacity: 0.4; }
+        .empty-chat p { color: #64748b; font-size: 1rem; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+
+        /* ─── Input area ─── */
+        .input-area {
+            padding: 16px 20px 20px;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(14px);
+            border-top: 1px solid rgba(99, 102, 241, 0.12);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .input-area form {
+            display: flex;
+            gap: 12px;
+            max-width: 860px;
+            margin: 0 auto;
+        }
+
+        .input-area input[type="text"] {
+            flex: 1;
+            padding: 14px 20px;
+            border: 2px solid transparent;
+            border-radius: 16px;
+            background: rgba(30, 41, 59, 0.9);
+            color: #f1f5f9;
+            font-size: 0.95rem;
             outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .input-area input[type="text"]::placeholder { color: #64748b; }
+        .input-area input[type="text"]:focus {
+            border-color: #818cf8;
+            box-shadow: 0 0 20px rgba(129, 140, 248, 0.2);
         }
 
-        .input-container button {
-            margin-left: 10px;
-            padding: 10px 20px;
+        .input-area button {
+            padding: 14px 28px;
             border: none;
-            border-radius: 20px;
-            background-color: #3b82f6;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #6366f1, #3b82f6);
             color: white;
+            font-size: 0.95rem;
+            font-weight: 600;
             cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .input-area button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+        }
+        .input-area button:active { transform: translateY(0); }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
-        .input-container button:hover {
-            background-color: #2563eb;
+        /* ─── Typing indicator ─── */
+        .typing-indicator {
+            display: none;
+            align-self: flex-start;
+            padding: 10px 18px;
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 18px;
+            border-bottom-left-radius: 6px;
+            gap: 4px;
+            align-items: center;
+        }
+        .typing-indicator span {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #818cf8;
+            display: inline-block;
+            animation: bounce 1.3s infinite;
+        }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.15s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes bounce {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-6px); opacity: 1; }
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .message-row { max-width: 88%; }
+            .top-bar { padding: 12px 14px; }
+            .top-bar nav a { padding: 6px 10px; font-size: 0.75rem; }
         }
     </style>
 </head>
 
 <body>
 
-<h2>Chat con IA</h2>
-
-<div class="chat-container">
-    {% for mensaje in mensajes %}
-        {% if mensaje.role == "user" %}
-            <div class="message user">
-                {{ mensaje.contenido }}
-            </div>
-        {% else %}
-            <div class="message ia">
-                {{ mensaje.contenido }}
-            </div>
-        {% endif %}
-    {% endfor %}
+<!-- Top bar -->
+<div class="top-bar">
+    <div style="display:flex;align-items:center;gap:14px;">
+        <span class="title">&#129302; Chat con IA</span>
+        <span class="session-badge">Sesión #{{ sesion.id_sesion }}</span>
+    </div>
+    <nav>
+        <a href="{% url 'chat' %}">&#10010; Nueva</a>
+        <a href="{% url 'buscar_conversaciones' %}">&#128269; Buscar</a>
+    </nav>
 </div>
 
-<form method="POST" class="input-container">
-    {% csrf_token %}
-    <input type="text" name="mensaje" placeholder="Escribe tu mensaje..." required>
-    <button type="submit">Enviar</button>
-</form>
+<!-- Messages -->
+<div class="chat-container" id="chatContainer">
+    {% for mensaje in mensajes %}
+        {% if mensaje.role == "user" %}
+            <div class="message-row user-row">
+                <div class="avatar">&#128100;</div>
+                <div>
+                    <div class="bubble">{{ mensaje.contenido }}</div>
+                    <div class="msg-time">{{ mensaje.timestamp|date:"H:i" }}</div>
+                </div>
+            </div>
+        {% else %}
+            <div class="message-row ia-row">
+                <div class="avatar">&#129302;</div>
+                <div>
+                    <div class="bubble">{{ mensaje.contenido }}</div>
+                    <div class="msg-time">{{ mensaje.timestamp|date:"H:i" }}</div>
+                </div>
+            </div>
+        {% endif %}
+    {% empty %}
+        <div class="empty-chat">
+            <div class="icon">&#128172;</div>
+            <p>Inicia la conversación escribiendo un mensaje...</p>
+        </div>
+    {% endfor %}
+
+    <!-- Typing dots (visible during submit) -->
+    <div class="typing-indicator" id="typingIndicator">
+        <span></span><span></span><span></span>
+    </div>
+</div>
+
+<!-- Input -->
+<div class="input-area">
+    <form method="POST" id="chatForm">
+        {% csrf_token %}
+        <input type="text" name="mensaje" placeholder="Escribe tu mensaje..." required autocomplete="off" id="msgInput">
+        <button type="submit">Enviar &#10148;</button>
+    </form>
+</div>
+
+<script>
+    // Auto-scroll to bottom
+    const chatContainer = document.getElementById("chatContainer");
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+
+    // Show typing indicator on submit
+    const form = document.getElementById("chatForm");
+    const typingIndicator = document.getElementById("typingIndicator");
+    const msgInput = document.getElementById("msgInput");
+
+    form.addEventListener("submit", function () {
+        if (msgInput.value.trim()) {
+            // Append user message immediately for visual feedback
+            const row = document.createElement("div");
+            row.className = "message-row user-row";
+            row.innerHTML = `
+                <div class="avatar">&#128100;</div>
+                <div>
+                    <div class="bubble">${msgInput.value}</div>
+                </div>
+            `;
+            chatContainer.insertBefore(row, typingIndicator);
+
+            // Show typing dots
+            typingIndicator.style.display = "flex";
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+    });
+
+    // Focus input on load
+    msgInput.focus();
+</script>
 
 </body>
-<script>
-    const chatContainer = document.querySelector(".chat-container");
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-</script>
 </html>
